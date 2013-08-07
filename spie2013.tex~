@@ -1,0 +1,237 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{epsfig}
+
+\marginparwidth 0pt
+\marginparsep 0pt
+\oddsidemargin 0.5in
+\evensidemargin0.5in
+\topmargin 0in
+\textwidth 5.5in
+\textheight 8in
+\footskip 0.5in
+
+\title{ Utilizing Web Data in Identification and Correction of OCR Errors}
+\author{Kazem Taghva and Shivam Agarwal\\
+Department of Computer Science\\
+University of Nevada, Las Vegas\\
+Las Vegas, NV }
+\date{} % delete this line to display the current date
+
+%%% BEGIN DOCUMENT
+\begin{document}
+
+\maketitle
+
+\section{Abstract}
+
+In this paper, we report on our experiments for detection and
+correction of OCR errors with web data. More specifically, we utilize
+Google search to access the big data resources available to identify
+possible candidates for correction. We then use a combination of the
+Longest Common Subsequences (LCS) and Bayesian estimates to
+automatically pick the proper candidate.
+
+Our experimental results on a small set of historical newspaper data
+show a recall and precision of 51\% and 100\%, respectively. The work in
+this paper further provides a detailed classification and analysis of
+all errors. In particular, we point out the shortcomings of our
+approach in its ability to suggest proper candidates to correct the
+remaining errors.\\
+
+
+{\bf KeyWords:} Post Processing, Information Extraction, Mining, Error
+Identification, Error Correction, Big Data
+
+\section{Introduction}
+
+Conversion of large collection of paper documents to electronic is
+typically done using Optical Character Recognition followed by some
+sort of post processing \cite{Taghva2006}. The latter is performed:
+\begin{itemize}
+
+\item To remove extraneous characters produced as a result of
+  misrecognition of graphics.\\
+\item To eliminate end-of-line hyphenations.\\
+\item To possibly identify and correct word errors.
+
+\end{itemize}
+
+The post processing can be very expensive and labor intensive
+depending on conversion requirements and textual applications. For
+retrieval purposes, experiments have shown that average precision is
+unaffected when comparing OCR text to its nearly perfect text version
+\cite{Taghva96}.  It is also shown that some characteristics of OCR
+text can cause problems for certain functionalities of Information
+Retrieval (IR) and Information Extraction (IE)
+systems\cite{Taghva2006}.
+
+In this paper, we report on an experiment to automatically identify
+and correct OCR errors based on the availability of big data on the
+web. 
+
+In section 2, we provide some background and related work on error
+identification and correction. Section 3 describes our approach in use
+of web data for error correction.  Section 4 is a short
+description of our data and a summary of errors. Section 5 is a
+summary of our results, and section 6 is a conclusion and propose
+future work.
+
+\section{Background}
+
+Identification and correction of misspellings in text has a long
+history and many of techniques are summarized by Kukich \cite{Kukich}.
+Other notable work in this area are the work of Brill \cite{Brill} and
+Hauser et al.\cite{Hauser}. The latter deals with identification of
+various spelling forms of words in historical documents. Most of the
+methodologies cited in these papers deal with typical spelling errors
+caused by the arrangement of alphabets on the computer key boards. The
+OCR errors are due to character segmentation and recognition and hence
+are less responsive to standard spelling correction techniques.
+
+The character accuracy of OCR engine is obviously a major factor in
+the number of misspellings in a converted document. A standard text
+page has about 2500 characters and an OCR engine with 99\% character
+accuracy can produce approximately 25 errors. This does not translate
+to 25 misspellings as character errors tend to be 1.5 errors per
+misrecognized word on the average. As a result, 99\% character
+accuracy produces around 15 misspelling per page.
+
+Many studies have been done to understand the nature of OCR errors and
+possibly suggest remedies for specific text applications such as
+retrieval or extraction. One such approach is proposed by Jin and
+Hauptman \cite{Jin2003} that incorporates a general content-based
+correction model that works on the top of an existing OCR correction
+tool to boost retrieval performance. An example of OCR correction tool
+is OCRspell proposed by Taghva and Stofsky \cite{Taghva01}.  OCRspell
+is especially designed as a semi-automatic approach.  A learning
+mechanism is used based on the corrections applied by the user. By
+comparing error-prone token and the manual replacement by the user,
+dynamic mappings are derived. For instance, from iiiount@in $
+\rightarrow $ mountain the mappings iii $ \rightarrow $ m and @ $
+\rightarrow $ a are derived.
+
+The Hauser\cite{Hauser} work is interesting in the sense that
+supervised and unsupervised learning are applied to solve spelling
+variation of words in historical documents. Taghva \cite{Taghva2013}
+used supervised learning capabilities of Hidden Markov Model (HMMs) to
+identify and correct OCR errors in a post processing application. This
+work showed that the second order HMM does not improve the accuracy
+over the first order when we require high precision despite of the
+additional context.
+
+In the next section, we report on our work that uses the word sequence
+and context to correct OCR errors. We will point out that the context
+beyond four surrounding words does not contribute to more corrections.
+
+\section{Web Data for OCR Post Processing}
+The training of HMM based post processing systems collects statistics
+on character frequency and sequencing to calculate probabilities for
+decoding of errors via Viterbi. Based on \cite{Taghva2013}, the HMM
+can correct about 11\% of the errors at precision of 100\%. In other
+words, we get 11\% improvement without corrupting the text by
+replacing a correct word with an incorrect one. We are of the opinion
+that 100\% precision is a good requirement for an ideal post
+processor. Most of us have observed that spell checkers cannot detect
+a class of errors in which one correctly error is substituted for
+another. These type of errors require more context information for
+identification and correction. One such approach based on statistical
+language modeling is proposed by Tong and Evans\cite{Tong96}. Another
+example of post processor that uses phrases and document content to
+correct errors is Manicure \cite{Taghva98themanicure}.
+
+One recent work \cite{Bassil2012, Bassil2012b} uses Google’s Web 1T
+5-gram data set to detect and correct OCR spelling. The algorithm
+works on an OCR text file as follows:
+
+\begin{enumerate}
+
+\item Each word is spell checked against Google Web 1T unigram to
+  identify all mispellings in the file.\\
+
+\item Each misspelling is matched with Google Web 1T to identify the
+  top 10 corectly spelled words based on the number of common bigrams.\\
+
+\item Each misspelling along with four preceding words in the text
+  file is matched with Google Web 1T to identify five-word
+  sequences.\\
+
+\end{enumerate}
+
+The correct spelling is picked from the ten candidates based on the
+ranking of the five-word sequences. The algorithm shows good potential
+based on small experiment by authors.
+
+We see at least two ways that the algorithm can be improved. The first
+one is the fact that OCR errors are different than other spelling
+errors. For example, we do not type {\tt rn} for {\tt m}. The second
+one is the fact that document content beyond five-word sequencing can
+play a role in error correction. We incorporate both of these
+observations in our algorithm and show examples that can benfit from
+these changes.
+
+\section{Data and Summary of Errors}
+ 
+
+\section{Experimental Results}
+To evaluate the performance of our HMM, we need to determine the evaluation 
+measures. There are four possible outcomes that can occur when applying an HMM 
+to an incorrect text:
+
+\begin{enumerate}
+\item correct $\rightarrow$ correct: A correct character is still correct at HMM output. This is 
+a true negative (TN). \\
+\item correct $\rightarrow$ wrong: A correct character is changed to a wrong character at HMM 
+output. This is a false positive (FP). \\
+\item wrong $\rightarrow$ correct: A character is corrected by the HMM. This is a true positive 
+(TP). \\
+\item wrong $\rightarrow$ wrong: A wrong character is still wrong at HMM output. This is a 
+false negative (FN). \\
+\end{enumerate}
+
+Recall and Precision values are calculated using TP, FP and FN as follows: \\
+Recall = $\frac{TP }{TP+FN }$\\
+Precision = $\frac{TP }{TP+FP}$\\
+The definition of these measures has been proposed and discussed by Reynaert \cite{Reynaert}. Recall values show the ability of the system to correct errors and the precision value 
+indicates the accuracy of the system. 
+
+The first order HMM corrected a total of 4 errors and did not produce any error. As a result it had a precision of 100\% and recall of 10\%. All the errors were of the form 1:1 substitution. The second order HMM made more corrections but also introduced many errors.  In what follows, we give a detailed explanation of the results for the second order HMM.
+
+The next  table  shows that values of TP, TN, FP and FN for the test pages. We 
+observe that the HMM was able to make some corrections (TP values), but it also 
+introduced some errors (FP values). \\
+\begin{tabular}{l l l l l l l}
+Test Page& TP& TN& FP& FN &Recall& Precision\\ 
+\hline
+Page1 &2& 1109& 0& 7& 22.2& 100 \\
+Page 2& 5& 1002& 0& 2& 71.4& 100 \\
+Page 3& 3& 901& 2& 6 &33.3& 60.0 \\
+Page 4& 2& 1172 &1 &3& 40.0& 66.7 \\
+Page 5& 2& 1192& 2& 2& 50.0& 50.0 \\
+\hline
+Total&14 &5376& 5& 20&43.38&75.34\\ 
+\end{tabular}
+
+We observed that some new errors were introduced by the HMM 
+(FN values).  The word {\tt judgment} was changed to {\tt hudgment}. In the training file, we found that the 
+count of transition  $t space \rightarrow j$ is 9 whereas the count of transition $t space \rightarrow h$ is 109. Therefore, 
+transition probability at h is higher than at j . For the error, {\tt quantity} 
+$\rightarrow$ {\tt huantith} we 
+found count of transition $it \rightarrow y$ is 76 whereas the count of transition $it \rightarrow h$ is 188. For 
+the error, {\tt salem }
+$\rightarrow$ {\tt salea} we found count of transition $le \rightarrow m$ is 42 whereas the count of 
+transition $le \rightarrow a$ is 56. Second order viterbi algorithm uses the transition and emission 
+probailities calculated by the MLE using the training Þle. Therefore, the output of 
+HMM is dependent on transitions in the training Þle. 
+
+\section{Conclusion and Future Work}
+
+This paper is a preliminary explanation of our project. We have shown that the first order HMM corrects about 10\% of the errors with 100\% precision. The second order HMM achieves much lower precision but higher recall. 
+
+The work of Kundu et al\cite{Kundu} suggests that the second order HMM improves the hand written recognition as it uses more information. It seems that in the case of post processing of printed documents, this may not be entirely true. As it s stated this is a preliminary work and we intend to report on extended work in the future.
+
+\bibliographystyle{plain}
+\bibliography{/home/taghva/Documents/Research/references}
+
+
+\end{document}
